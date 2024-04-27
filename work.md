@@ -99,8 +99,43 @@ JOIN customers c ON o.customerid = c.customerid;
 ![](img/InnerJoin.png)
 Этот запрос возвращает идентификаторы заказов вместе с именами и фамилиями клиентов, которые их сделали.
 
-...
+### LEFT JOIN
+Использование `LEFT JOIN` для получения всех клиентов и их заказов, включая клиентов, у которых нет заказов.
 
+```sql
+SELECT customers.firstname, customers.lastname, orders.orderid
+FROM customers
+LEFT JOIN orders ON customers.customerid = orders.customerid;
+```
+![](img/LeftJoin.png)
+### RIGHT JOIN
+Использование `RIGHT JOIN` для получения всех заказов и информации о клиентах, включая заказы, не связанные с клиентами.
+
+```sql
+SELECT customers.firstname, customers.lastname, orders.orderid
+FROM customers
+RIGHT JOIN orders ON customers.customerid = orders.customerid;
+```
+![](img/RightJoin.png)
+### CROSS JOIN
+`CROSS JOIN` создаёт декартово произведение, т.е., соединяет каждую запись из одной таблицы с каждой записью из другой таблицы.
+
+```sql
+SELECT customers.firstname, customers.lastname, cafe.location
+FROM customers
+CROSS JOIN cafe;
+```
+![](img/CrossJoin.png)
+### FULL OUTER JOIN
+`FULL OUTER JOIN` используется для выборки всех записей, когда есть совпадение в одной из таблиц, включает всех клиентов и все заказы, даже если нет совпадения.
+
+```sql
+SELECT customers.firstname, customers.lastname, orders.orderid
+FROM customers
+FULL OUTER JOIN orders ON customers.customerid = orders.customerid;
+```
+![](img/FullOuJoin.png)
+...
 ### Оконные функции
 Оконные функции позволяют выполнять вычисления над набором строк, подобно агрегатным функциям, но без группировки. Например:
 
