@@ -141,8 +141,11 @@ FULL OUTER JOIN orders ON customers.customerid = orders.customerid;
 
 ```sql
 SELECT orderid, orderdatetime, SUM(price) OVER (PARTITION BY customerid) as total_spent
-FROM orders;
+FROM orders 
+    JOIN OrderDetails USING(orderid) 
+    JOIN Menu USING(dishid);
 ```
+![](img/AVGshka.png)
 Этот запрос рассчитывает общую сумму, потраченную каждым клиентом.
 
 ...
@@ -151,14 +154,22 @@ FROM orders;
 Оператор `CASE` используется для реализации логики ветвления в SQL. Например:
 
 ```sql
-SELECT orderid, 
-       CASE 
-           WHEN status = 'Shipped' THEN 'Отправлен'
-           WHEN status = 'Cancelled' THEN 'Отменен'
-           ELSE 'В обработке'
-       END as status_description
-FROM orders;
+SELECT
+  c.firstname,
+  c.lastname,
+  o.orderdatetime,
+  CASE 
+    WHEN o.status = 'Принят' THEN 'В процессе'
+    WHEN o.status = 'Готовится' THEN 'Готовится'
+    WHEN o.status = 'Доставляется' THEN 'В пути'
+    WHEN o.status = 'Завершен' THEN 'Завершен'
+    WHEN o.status = 'Отдан' THEN 'Отдан'
+    ELSE 'Неизвестно'
+  END AS order_status
+FROM customers AS c
+JOIN orders AS o ON c.customerid = o.customerid;
 ```
+![](img/Case.png)
 Этот запрос возвращает идентификаторы заказов с описанием их статуса на русском языке.
 
 ...
