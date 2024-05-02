@@ -1,4 +1,4 @@
-# Работа по базам данных
+# Cоколовский Тимур, ИС 22/9-1
 
 ## Содержание
 - [ER-диаграмма](#er-диаграмма)
@@ -16,6 +16,8 @@
 - dishdescription: text - Подробное описание блюда.
 - price: numeric - Цена блюда.
 - cafeid: int - Идентификатор кафе, к которому принадлежит меню, внешний ключ.
+  
+![](img/Menu.png)
 
 #### Сущность "customers"
 - customerid: int - Уникальный идентификатор клиента.
@@ -24,7 +26,8 @@
 - phone: varchar - Телефонный номер клиента.
 - email: varchar - Электронная почта клиента.
 - cafeid: int - Идентификатор кафе, которое клиент посещает, внешний ключ.
-
+  
+![](img/Customers.png)
 #### Сущность "employees"
 - employeeid: int - Уникальный идентификатор сотрудника.
 - firstname: varchar - Имя сотрудника.
@@ -33,12 +36,15 @@
 - phone: varchar - Телефонный номер сотрудника.
 - cafeid: int - Идентификатор кафе, в котором работает сотрудник, внешний ключ.
 
+![](img/Employees.png)
 #### Сущность "cafe"
 - cafeid: int - Уникальный идентификатор кафе.
 - location: varchar - Адрес расположения кафе.
 - phone: varchar - Телефонный номер кафе.
 - email: varchar - Электронная почта кафе.
 - openinghours: time - Часы работы кафе.
+
+![](img/CafeScreen.png)
 
 #### Сущность "orders"
 - orderid: int - Уникальный идентификатор заказа.
@@ -47,10 +53,14 @@
 - status: varchar - Статус заказа.
 - cafeid: int - Идентификатор кафе, в котором сделан заказ, внешний ключ.
 
+![](img/Orders.png)
+
 #### Сущность "orderdetails"
 - orderdetailid: int - Уникальный идентификатор детали заказа.
 - orderid: int - Идентификатор заказа, внешний ключ.
 - dishid: int - Идентификатор блюда в заказе, внешний ключ.
+
+![](img/OrderDets.png)
 
 ### Ограничения и связи
 
@@ -85,6 +95,59 @@ SELECT firstname, lastname FROM employees;
 ```
 ![Union](img/Union.png)
 Этот запрос вернет список уникальных имен и фамилий клиентов и сотрудников.
+
+...
+
+## ORDER BY
+```sql
+SELECT cafeid, COUNT(dishid) AS dish_count
+FROM menu
+GROUP BY cafeid
+ORDER BY dish_count DESC;
+```
+![](img/OrderBy.png)
+Этот запрос выводит список кафе с количеством блюд в каждом из них, упорядоченных от наибольшего к наименьшему. Это позволяет увидеть, какое кафе предлагает наибольшее разнообразие блюд.
+
+...
+
+## HAVING
+```sql
+SELECT cafe.cafeid, cafe.location, COUNT(orders.orderid) AS number_of_orders
+FROM cafe
+JOIN orders ON cafe.cafeid = orders.cafeid
+GROUP BY cafe.cafeid, cafe.location
+HAVING COUNT(orders.orderid) > 5
+ORDER BY number_of_orders DESC;
+```
+![](img/Having.png)
+Запрос фильтрует кафе, где количество заказов превышает 1, и возвращает идентификаторы и местоположения таких кафе, упорядоченные по количеству заказов от большего к меньшему. HAVING здесь используется для фильтрации групп после группировки по cafeid, что невозможно выполнить с помощью WHERE.
+
+...
+
+## Вложенные Запросы
+### В SELECT
+```sql
+SELECT c.firstname, c.lastname,
+  (SELECT COUNT(*) FROM orders o WHERE o.customerid = c.customerid) AS number_of_orders
+FROM customers c;
+```
+![](img/Select.png)
+Запрос возвращает имена и фамилии клиентов вместе с количеством сделанных ими заказов. Вложенный запрос подсчитывает количество заказов для каждого клиента.
+
+### В WHERE
+```sql
+SELECT o.*
+FROM orders o
+WHERE EXISTS (
+  SELECT 1 FROM orderdetails od
+  JOIN menu m ON m.dishid = od.dishid
+  WHERE od.orderid = o.orderid AND m.price = (
+    SELECT MAX(price) FROM menu
+  )
+);
+```
+![](img/Where.png)
+Запрос выбирает все заказы, в которых присутствует хотя бы одно блюдо с максимальной ценой в меню. Вложенный запрос с EXISTS проверяет наличие такого блюда в каждом заказе.
 
 ...
 
@@ -181,6 +244,7 @@ JOIN orders AS o ON c.customerid = o.customerid;
 SELECT CONCAT(firstname, ' ', lastname) as fullname
 FROM customers;
 ```
+![](img/Concat.png)
 Этот запрос возвращает полные имена клиентов.
 
 ...
