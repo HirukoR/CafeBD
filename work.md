@@ -1,14 +1,16 @@
 1. # Cоколовский Тимур, ИС 22/9-1
 
 ## Содержание
+
+- [Содержание](#содержание)
 - [ER-диаграмма](#er-диаграмма)
-- [Описание базы данных](#описание-базы-данных)
 - [Демонстрация SQL-запросов](#демонстрация-sql-запросов)
 
 ## ER-диаграмма
 ![ER-диаграмма](img/de67caa6-5763-4c6e-9d43-58262f538ba9.jpg)
 
 2. ## Описание базы данных
+<!-- omit in toc -->
 ### Описание сущностей
 1. #### Сущность "menu"
 - menuid: int - Уникальный идентификатор записи в меню.
@@ -28,6 +30,7 @@
 - cafeid: int - Идентификатор кафе, которое клиент посещает, внешний ключ.
   
 ![](img/Customers.png)
+
 3. #### Сущность "employees"
 - employeeid: int - Уникальный идентификатор сотрудника.
 - firstname: varchar - Имя сотрудника.
@@ -37,6 +40,7 @@
 - cafeid: int - Идентификатор кафе, в котором работает сотрудник, внешний ключ.
 
 ![](img/Employees.png)
+
 4. #### Сущность "cafe"
 - cafeid: int - Уникальный идентификатор кафе.
 - location: varchar - Адрес расположения кафе.
@@ -63,7 +67,7 @@
 ![](img/OrderDets.png)
 
 ## Демонстрация SQL-запросов
-3. ### UNION
+3. ## UNION
 Для объединения результатов двух запросов, которые имеют одинаковое количество столбцов и совместимые типы данных, используется оператор `UNION`. Например:
 
 ```sql
@@ -103,6 +107,7 @@ ORDER BY number_of_orders DESC;
 ...
 
 6. ## Вложенные Запросы
+<!-- omit in toc -->
 ### В SELECT
 ```sql
 SELECT c.firstname, c.lastname,
@@ -112,6 +117,7 @@ FROM customers c;
 ![](img/Select.png)
 Запрос возвращает имена и фамилии клиентов вместе с количеством сделанных ими заказов. Вложенный запрос подсчитывает количество заказов для каждого клиента.
 
+<!-- omit in toc -->
 ### В WHERE
 ```sql
 SELECT o.*
@@ -129,7 +135,21 @@ WHERE EXISTS (
 
 ...
 
-8. ### JOINs
+7. ## Оконные функции
+Оконные функции позволяют выполнять вычисления над набором строк, подобно агрегатным функциям, но без группировки. Например:
+
+```sql
+SELECT orderid, orderdatetime, SUM(price) OVER (PARTITION BY customerid) as total_spent,
+       LAG(OrderID) OVER (ORDER BY orderdatetime) AS PreviousOrderID,
+       LEAD(OrderID) OVER (ORDER BY orderdatetime) AS NextOrderID
+FROM orders 
+    JOIN OrderDetails USING(orderid) 
+    JOIN Menu USING(dishid);
+```
+![](img/windows.png)
+Этот запрос рассчитывает общую сумму, потраченную каждым клиентом а так же выводит предыдущий айди заказа.
+
+8. ## JOINs
 Для демонстрации работы `JOIN` можно использовать следующий запрос, который соединяет информацию о заказах с информацией о клиентах:
 
 ```sql
@@ -139,7 +159,7 @@ JOIN customers c ON o.customerid = c.customerid;
 ```
 ![](img/InnerJoin.png)
 Этот запрос возвращает идентификаторы заказов вместе с именами и фамилиями клиентов, которые их сделали.
-
+<!-- omit in toc -->
 ### LEFT JOIN
 Использование `LEFT JOIN` для получения всех клиентов и их заказов, включая клиентов, у которых нет заказов.
 
@@ -149,6 +169,7 @@ FROM customers
 LEFT JOIN orders ON customers.customerid = orders.customerid;
 ```
 ![](img/LeftJoin.png)
+<!-- omit in toc -->
 ### RIGHT JOIN
 Использование `RIGHT JOIN` для получения всех заказов и информации о клиентах, включая заказы, не связанные с клиентами.
 
@@ -158,6 +179,7 @@ FROM customers
 RIGHT JOIN orders ON customers.customerid = orders.customerid;
 ```
 ![](img/RightJoin.png)
+<!-- omit in toc -->
 ### CROSS JOIN
 `CROSS JOIN` создаёт декартово произведение, т.е., соединяет каждую запись из одной таблицы с каждой записью из другой таблицы.
 
@@ -167,6 +189,7 @@ FROM customers
 CROSS JOIN cafe;
 ```
 ![](img/CrossJoin.png)
+<!-- omit in toc -->
 ### FULL OUTER JOIN
 `FULL OUTER JOIN` используется для выборки всех записей, когда есть совпадение в одной из таблиц, включает всех клиентов и все заказы, даже если нет совпадения.
 
@@ -177,23 +200,10 @@ FULL OUTER JOIN orders ON customers.customerid = orders.customerid;
 ```
 ![](img/FullOuJoin.png)
 ...
-### Оконные функции
-Оконные функции позволяют выполнять вычисления над набором строк, подобно агрегатным функциям, но без группировки. Например:
 
-```sql
-SELECT orderid, orderdatetime, SUM(price) OVER (PARTITION BY customerid) as total_spent
-FROM orders 
-    JOIN OrderDetails USING(orderid) 
-    JOIN Menu USING(dishid);
-```
-![](img/AVGshka.png)
-Этот запрос рассчитывает общую сумму, потраченную каждым клиентом.
 
-...
-
-9. ### CASE
-Оператор `CASE` используется для реализации логики ветвления в SQL. Например:
-
+9. ## CASE
+`CASE` оценивает условия последовательно и останавливается с первым условием, условие которого удовлетворено.
 ```sql
 SELECT
   c.firstname,
@@ -214,3 +224,24 @@ JOIN orders AS o ON c.customerid = o.customerid;
 Этот запрос возвращает идентификаторы заказов с описанием их статуса на русском языке.
 
 ...
+
+10.  ## WITH
+`WITH` создает временную таблицу с набором данных, к которым можно обращаться
+```sql
+WITH EmployeeCount AS (
+  SELECT cafeid, COUNT(employeeid) as num_employees
+  FROM Employees
+  GROUP BY cafeid
+),
+ DishCount as (
+   SELECT cafeid, COUNT(dishid) as num_dishes
+   FROM Menu
+   GROUP by cafeid
+)
+SELECT Cafe.CafeID, Cafe.Location, ec.num_employees, dc.num_dishes
+FROM Cafe
+LEFT JOIN EmployeeCount ec ON Cafe.CafeID = ec.cafeid
+LEFT JOIN DishCount dc on Cafe.CafeID = dc.cafeid;
+```
+![](img/With.png)
+Этот запрос создает временную таблицу, содержащую в себе Кафе, его локацию, количество сотрудников и блюд. Если сотрудников и блюд не наблюдается - ставится `NULL`.
