@@ -1,4 +1,4 @@
-# Cоколовский Тимур, ИС 22/9-1
+1. # Cоколовский Тимур, ИС 22/9-1
 
 ## Содержание
 - [ER-диаграмма](#er-диаграмма)
@@ -8,9 +8,9 @@
 ## ER-диаграмма
 ![ER-диаграмма](img/de67caa6-5763-4c6e-9d43-58262f538ba9.jpg)
 
-## Описание базы данных
+2. ## Описание базы данных
 ### Описание сущностей
-#### Сущность "menu"
+1. #### Сущность "menu"
 - menuid: int - Уникальный идентификатор записи в меню.
 - dishid: int - Идентификатор блюда, внешний ключ.
 - dishdescription: text - Подробное описание блюда.
@@ -19,7 +19,7 @@
   
 ![](img/Menu.png)
 
-#### Сущность "customers"
+2. #### Сущность "customers"
 - customerid: int - Уникальный идентификатор клиента.
 - firstname: varchar - Имя клиента.
 - lastname: varchar - Фамилия клиента.
@@ -28,7 +28,7 @@
 - cafeid: int - Идентификатор кафе, которое клиент посещает, внешний ключ.
   
 ![](img/Customers.png)
-#### Сущность "employees"
+3. #### Сущность "employees"
 - employeeid: int - Уникальный идентификатор сотрудника.
 - firstname: varchar - Имя сотрудника.
 - lastname: varchar - Фамилия сотрудника.
@@ -37,7 +37,7 @@
 - cafeid: int - Идентификатор кафе, в котором работает сотрудник, внешний ключ.
 
 ![](img/Employees.png)
-#### Сущность "cafe"
+4. #### Сущность "cafe"
 - cafeid: int - Уникальный идентификатор кафе.
 - location: varchar - Адрес расположения кафе.
 - phone: varchar - Телефонный номер кафе.
@@ -46,7 +46,7 @@
 
 ![](img/CafeScreen.png)
 
-#### Сущность "orders"
+5. #### Сущность "orders"
 - orderid: int - Уникальный идентификатор заказа.
 - customerid: int - Идентификатор клиента, сделавшего заказ, внешний ключ.
 - orderdatetime: timestamp - Дата и время совершения заказа.
@@ -55,37 +55,15 @@
 
 ![](img/Orders.png)
 
-#### Сущность "orderdetails"
+6. #### Сущность "orderdetails"
 - orderdetailid: int - Уникальный идентификатор детали заказа.
 - orderid: int - Идентификатор заказа, внешний ключ.
 - dishid: int - Идентификатор блюда в заказе, внешний ключ.
 
 ![](img/OrderDets.png)
 
-### Ограничения и связи
-
-#### Связи между menu и cafe
-- ForeignKey (cafeid в menu): menu связана с cafe через cafeid, что означает, что каждая запись в menu соответствует определенному кафе.
-
-#### Связи между customers и cafe
-- ForeignKey (cafeid в customers): customers связана с cafe через cafeid, указывая на кафе, которое клиент посещает.
-
-#### Связи между employees и cafe
-- ForeignKey (cafeid в employees): employees связана с cafe через cafeid, что подразумевает, что каждый сотрудник работает в определенном кафе.
-
-#### Связи между orders, customers, и cafe
-- ForeignKey (customerid в orders): orders связана с customers через customerid, что позволяет отследить, какой клиент сделал заказ.
-- ForeignKey (cafeid в orders): orders также связана с cafe через cafeid, что указывает на кафе, в котором был сделан заказ.
-
-#### Связи между orderdetails, orders, и menu
-- ForeignKey (orderid в orderdetails): orderdetails связана с orders через orderid, что позволяет определить, к какому заказу относятся детали заказа.
-- ForeignKey (dishid в orderdetails): orderdetails связана с menu через dishid, что позволяет определить, какие блюда включены в заказ.
-
-Эти связи обычно реализуются через внешние ключи в реляционной базе данных, чтобы обеспечить целостность данных и легко соединять связанные таблицы при запросах.
-
-
 ## Демонстрация SQL-запросов
-### UNION
+3. ### UNION
 Для объединения результатов двух запросов, которые имеют одинаковое количество столбцов и совместимые типы данных, используется оператор `UNION`. Например:
 
 ```sql
@@ -98,7 +76,7 @@ SELECT firstname, lastname FROM employees;
 
 ...
 
-## ORDER BY
+4. ## ORDER BY
 ```sql
 SELECT cafeid, COUNT(dishid) AS dish_count
 FROM menu
@@ -110,7 +88,7 @@ ORDER BY dish_count DESC;
 
 ...
 
-## HAVING
+5. ## HAVING
 ```sql
 SELECT cafe.cafeid, cafe.location, COUNT(orders.orderid) AS number_of_orders
 FROM cafe
@@ -124,7 +102,7 @@ ORDER BY number_of_orders DESC;
 
 ...
 
-## Вложенные Запросы
+6. ## Вложенные Запросы
 ### В SELECT
 ```sql
 SELECT c.firstname, c.lastname,
@@ -151,7 +129,7 @@ WHERE EXISTS (
 
 ...
 
-### JOINs
+8. ### JOINs
 Для демонстрации работы `JOIN` можно использовать следующий запрос, который соединяет информацию о заказах с информацией о клиентах:
 
 ```sql
@@ -213,7 +191,7 @@ FROM orders
 
 ...
 
-### CASE
+9. ### CASE
 Оператор `CASE` используется для реализации логики ветвления в SQL. Например:
 
 ```sql
@@ -234,17 +212,5 @@ JOIN orders AS o ON c.customerid = o.customerid;
 ```
 ![](img/Case.png)
 Этот запрос возвращает идентификаторы заказов с описанием их статуса на русском языке.
-
-...
-
-### Работа с текстовыми данными
-Функции для работы с текстовыми данными в SQL позволяют манипулировать строками. Например, функция `CONCAT` объединяет строки:
-
-```sql
-SELECT CONCAT(firstname, ' ', lastname) as fullname
-FROM customers;
-```
-![](img/Concat.png)
-Этот запрос возвращает полные имена клиентов.
 
 ...
